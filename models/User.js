@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 
+// const post = require('./Posts')
+// console.log(post)
+
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -22,8 +25,14 @@ const userSchema = new mongoose.Schema({
     date: {
         type: Date,
         default: Date.now
-    }
-});
+    },
+    posts: 
+        {
+            all_post: { type: mongoose.Types.ObjectId, required: false, ref: "User" }
+        }
+    
+})
 
 
 module.exports = mongoose.model('User', userSchema);
+

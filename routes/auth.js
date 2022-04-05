@@ -8,6 +8,8 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const { registerValidation, loginValidation } = require('../lib/validation');
+const res = require('express/lib/response');
+const Posts = require('../models/Posts');
 
 
 router.post('/register', async (req, res) => {
@@ -48,10 +50,57 @@ router.post('/login', async (req, res) => {
   
     const validPassword = await bcrypt.compare(req.body.password, user.password);
     if (!validPassword) return res.status(400).send('Invalid Email or Password.')
-    const token = jwt.sign({_id: user._id}, process.env.TOKEN_SECRET);
-    res.header('auth-token', token).send('Login')
+    const token = jwt.sign({user: {
+        id: user._id,
+        name: user.name,
+        email: user.email
+    }}, process.env.TOKEN_SECRET);
+    res.header('authtoken', token).send('Login')
 })
 
+router.get('/all', async (request, response) => {
+    const users = await User.find().populate({
+        path: 'posts.all_post',
+        model: 'User',
+        select: 'title'
+    });
 
+    // const postId = users[0].posts[0]._id
+    // const postFind = await Posts.findById(postId.toString())
+    // response.send(postFind)
+    response.send(users)
+})
+
+router.get('/all/post', (req, res, next) => {
+    User.find()
+    .select("name email")
+    .populate('posts', 'name')
+    .exec()
+    .then(posts => {
+      res.status(200).json({
+        posts: posts.map(post => {
+          return {
+            _id: post._id,
+            title: post.title,
+            description: post.description,
+            request: {
+              type: "GET",
+              url: "http://localhost:8000/api/posts/" + post._id
+            }
+          };
+        })
+      });
+    })
+    .catch(err => {
+      res.status(500).json({
+        error: err
+      });
+    });
+})
 
 module.exports = router;
+
+
+
+
+  
