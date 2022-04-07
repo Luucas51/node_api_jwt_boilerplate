@@ -15,11 +15,12 @@ router.get('/', async (req, res) => {
 
 
 router.post('/new', async (req, res) => {
-    const current_token = req.headers.authtoken;
+    const current_token = req.header('auth-token');
     const current_user = jwt.verify(current_token, process.env.TOKEN_SECRET)
+    console.log(current_user)
 
     const newRecord = new Post({
-        user: current_user.user.id,
+        user_info: current_user.user,
         author: current_user.user.name,
         title: req.body.title,
         description: req.body.description
@@ -32,14 +33,13 @@ router.post('/new', async (req, res) => {
 
 
     newRecord.save((err, content) => {
-        !err ? res.send(content.author) : res.send('Post new record : ' + err)
+        !err ? res.send(content) : res.send('Post new record : ' + err)
     });
  });
 
  router.get("/:id", (req, res, next) => {
     const id = req.params.id;
     Post.findById(id)
-      .select('_id title description')
       .exec()
       .then(doc => {
         console.log("From database", doc);

@@ -1,8 +1,5 @@
 const mongoose = require('mongoose');
 
-// const post = require('./Posts')
-// console.log(post)
-
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -26,10 +23,11 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    posts: 
+    posts: [
         {
-            all_post: { type: mongoose.Types.ObjectId, required: false, ref: "User" }
-        }
+            all_post: { type: mongoose.Types.ObjectId, required: false, ref: "Post" }
+        }  
+    ]
     
 })
 

@@ -46,23 +46,24 @@ router.post('/login', async (req, res) => {
 
 
     let user = await User.findOne({email: req.body.email});
-    if (!user) return res.status(400).send('Invalid Email or Password.')
+    if (!user) return res.status(400).send('Invalid Email.')
   
     const validPassword = await bcrypt.compare(req.body.password, user.password);
-    if (!validPassword) return res.status(400).send('Invalid Email or Password.')
+    if (!validPassword) return res.status(400).send('Invalid Password.')
     const token = jwt.sign({user: {
         id: user._id,
         name: user.name,
         email: user.email
     }}, process.env.TOKEN_SECRET);
-    res.header('authtoken', token).send('Login')
+    res.send({user, token})
 })
 
+
 router.get('/all', async (request, response) => {
-    const users = await User.find().populate({
+    const users = await User.find()
+    .populate({
         path: 'posts.all_post',
         model: 'User',
-        select: 'title'
     });
 
     // const postId = users[0].posts[0]._id
